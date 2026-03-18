@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/41d5ae22-23a3-4cb3-a69d-35fc5aae45fb/resourceGroups/CTS-VibeAppea381/providers/Microsoft.Web/sites/CTS-VibeAppea3813-1",
+    "appService.deploySubpath": "."
+}

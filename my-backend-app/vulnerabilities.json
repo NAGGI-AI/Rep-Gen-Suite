@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Cross-Site Scripting (XSS)",
+    "description": "A type of security vulnerability that allows an attacker to inject malicious scripts into web pages viewed by other users.",
+    "remediation": "Sanitize user input by implementing a library like DOMPurify on the client-side and appropriate encoding on the server-side."
+  },
+  {
+    "id": 2,
+    "name": "SQL Injection",
+    "description": "A code injection technique that might destroy your database.",
+    "remediation": "Use parameterized queries or prepared statements instead of string concatenation to build SQL queries."
+  },
+  {
+    "id": 3,
+    "name": "SQL Injection",
+    "description": "A code injection technique that might destroy your database.",
+    "remediation": "Use parameterized queries or prepared statements instead of string concatenation to build SQL queries."
+  },
+  {
+    "id": 4,
+    "name": "SQL Injection",
+    "description": "A code injection technique that might destroy your database.",
+    "remediation": "Use parameterized queries or prepared statements instead of string concatenation to build SQL queries."
+  },
+  {
+    "id": 5,
+    "name": "SQL Injection",
+    "description": "A code injection technique that might destroy your database.",
+    "remediation": "Use parameterized queries or prepared statements instead of string concatenation to build SQL queries."
+  },
+  {
+    "id": 6,
+    "name": "Anti-Automation",
+    "description": "It was identified that attacker can perform form based  brute force or dictionary attack to compromise the application.",
+    "remediation": "It is recommended to implement captcha version 2."
+  },
+  {
+    "id": 7,
+    "name": "Account Lockout",
+    "description": "A malicious user may gain access to user accounts by submitting a large number of login attempts.",
+    "remediation": "Lock user accounts after 5 consecutive invalid login attempts."
+  }
+]

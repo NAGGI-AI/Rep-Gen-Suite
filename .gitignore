@@ -1,0 +1,26 @@
+# ── Node dependencies (never commit these) ──────────
+node_modules/
+**/node_modules/
+
+# ── Puppeteer Chrome cache (huge, platform-specific) ─
+**/.cache/
+
+# ── Frontend build output (we copy this manually) ────
+my-frontend-app/dist/
+
+# ── Older unused folders ──────────────────────────────
+backend/
+frontend/
+
+# ── Logs ─────────────────────────────────────────────
+*.log
+npm-debug.log*
+
+# ── OS files ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Local env overrides ───────────────────────────────
+.env.local
+**/.env.local

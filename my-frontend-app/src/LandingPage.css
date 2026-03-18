@@ -1,0 +1,79 @@
+.landing-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-image: linear-gradient(to top right, var(--header-bg-start), var(--header-bg-end));
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.landing-content {
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 3rem 4rem;
+  border-radius: var(--border-radius);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.landing-title {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.landing-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
+  margin-top: 0.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.card-container {
+  display: flex;
+  gap: 2rem;
+}
+
+.report-card {
+  background-color: var(--card-bg);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  color: var(--text-dark);
+  width: 250px;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-top: 5px solid transparent;
+}
+
+.dast-card { border-top-color: var(--primary-color); }
+.masa-card { border-top-color: var(--accent-color); }
+
+.report-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.dast-card:hover .card-icon, .dast-card:hover h2 { color: var(--primary-color); }
+.masa-card:hover .card-icon, .masa-card:hover h2 { color: var(--accent-color); }
+
+.card-icon {
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--text-dark);
+  transition: color 0.3s ease;
+}
+
+.report-card h2 {
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.report-card p {
+  color: var(--text-light);
+  margin: 0;
+}
