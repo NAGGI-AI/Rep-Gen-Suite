@@ -1,0 +1,24 @@
+# =============================================================
+# Render.com Blueprint — Rep_Gen_Suite
+# Docs: https://render.com/docs/blueprint-spec
+# =============================================================
+
+services:
+  - type: web
+    name: rep-gen-suite
+    env: node
+    plan: free
+    region: oregon          # closest to most users; change if needed
+
+    # Build: compile frontend → copy to backend/public → install backend deps
+    buildCommand: bash build.sh
+
+    # Start: run the Express server from its own directory
+    startCommand: node my-backend-app/server.js
+
+    # Health check — Render pings this to know when the app is ready
+    healthCheckPath: /healthz
+
+    envVars:
+      - key: NODE_ENV
+        value: production
