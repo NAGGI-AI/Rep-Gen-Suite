@@ -83,8 +83,16 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
          </tr>`
       : '';
 
+    // Left-border colour based on severity
+    const borderColor = {
+      'High':          '#c0392b',
+      'Medium':        '#e67e22',
+      'Low':           '#27ae60',
+      'Informational': '#2980b9',
+    }[vuln.severity] || '#003399';
+
     return `
-    <div class="vuln-card${index === 0 ? ' first-card' : ''}">
+    <div class="vuln-card${index === 0 ? ' first-card' : ''}" style="border-left: 4px solid ${borderColor};">
       <div class="vuln-card-header">
         <span class="vuln-num">${index + 1}.</span>
         <span class="vuln-name">${escapeHtml(vuln.vulnerabilityName)}</span>
@@ -127,9 +135,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
       line-height: 1.55;
     }
 
-    /* ── Brand palette ─────────────────────────────── */
-    /* Primary navy : #003399  |  accent teal : #00b4d8 */
-
     /* ══════════════════════════════════════════════════
        PAGE 1 — TITLE PAGE
     ══════════════════════════════════════════════════ */
@@ -153,26 +158,28 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .title-block {
       margin-top: 52px;
       text-align: center;
-      padding: 28px 24px 22px;
-      background: linear-gradient(135deg, #003399 0%, #0055cc 100%);
-      border-radius: 6px;
+      padding: 32px 24px 26px;
+      background: linear-gradient(135deg, #001f6b 0%, #003399 50%, #0055cc 100%);
+      border-radius: 8px;
       color: #fff;
+      box-shadow: 0 4px 16px rgba(0, 51, 153, 0.25);
     }
     .title-block .app-name {
-      font-size: 17pt;
+      font-size: 20pt;
       font-weight: 700;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.4px;
     }
     .title-block .report-type {
       font-size: 11pt;
       font-weight: 400;
       opacity: 0.88;
-      margin-top: 6px;
+      margin-top: 8px;
+      letter-spacing: 0.2px;
     }
     .title-block .generated-on {
       font-size: 8pt;
-      opacity: 0.7;
-      margin-top: 10px;
+      opacity: 0.65;
+      margin-top: 12px;
     }
 
     /* Meta details grid */
@@ -185,7 +192,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .meta-table th {
       background: #003399;
       color: #fff;
-      padding: 8px 11px;
+      padding: 9px 12px;
       text-align: left;
       width: 20%;
       font-weight: 600;
@@ -193,20 +200,20 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     }
     .meta-table td {
       border: 1px solid #c8d4ec;
-      padding: 8px 11px;
+      padding: 9px 12px;
       width: 30%;
       background: #f7f9ff;
     }
 
-    /* Vulnerability matrix on title page */
-    .matrix-wrap { margin-top: 22px; }
+    /* Vulnerability overview matrix */
+    .matrix-wrap { margin-top: 24px; }
     .matrix-label {
       font-size: 8.5pt;
       font-weight: 700;
       color: #003399;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 6px;
+      letter-spacing: 0.8px;
+      margin-bottom: 7px;
     }
     .matrix-table {
       width: 100%;
@@ -217,12 +224,13 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .matrix-table th {
       background: #003399;
       color: #fff;
-      padding: 7px 10px;
+      padding: 8px 10px;
       border: 1px solid #0044bb;
+      font-weight: 600;
     }
     .matrix-table td {
       border: 1px solid #c8d4ec;
-      padding: 7px 10px;
+      padding: 8px 10px;
       font-weight: 700;
       background: #f7f9ff;
     }
@@ -238,36 +246,38 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .c-info { color: #1a5276; }
 
     /* ══════════════════════════════════════════════════
-       PAGE 2 — SUMMARY SECTION
+       PAGE 2 — VULNERABILITY SUMMARY
+       (Application details already shown on page 1 — no duplication)
     ══════════════════════════════════════════════════ */
     .summary-page { page-break-before: always; }
 
     .section-heading {
-      background: linear-gradient(90deg, #003399 0%, #0055cc 100%);
+      background: linear-gradient(90deg, #001f6b 0%, #003399 60%, #0055cc 100%);
       color: #fff;
-      padding: 9px 16px;
-      font-size: 11pt;
+      padding: 10px 18px;
+      font-size: 10.5pt;
       font-weight: 700;
-      border-radius: 4px 4px 0 0;
+      border-radius: 5px 5px 0 0;
       page-break-after: avoid;
+      letter-spacing: 0.3px;
     }
     .section-body {
       border: 1px solid #c8d4ec;
       border-top: none;
       padding: 20px;
-      border-radius: 0 0 4px 4px;
+      border-radius: 0 0 5px 5px;
       margin-bottom: 28px;
     }
 
-    /* Compact chart + stat cards side by side */
+    /* Chart + stat cards side by side */
     .summary-layout {
       display: flex;
       gap: 28px;
       align-items: flex-start;
     }
     .chart-wrap {
-      width: 320px;
-      height: 180px;
+      width: 300px;
+      height: 175px;
       flex-shrink: 0;
     }
     .stat-cards {
@@ -279,38 +289,20 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .stat-card {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 9px 14px;
-      border-radius: 5px;
+      gap: 14px;
+      padding: 10px 16px;
+      border-radius: 6px;
       font-size: 8.5pt;
+      border-left: 3px solid transparent;
     }
-    .stat-card .sn { font-size: 18pt; font-weight: 800; line-height: 1; }
-    .stat-card .sl { font-size: 8pt; color: #555; }
-    .sc-total { background: #eef1f8; }
-    .sc-high  { background: #fdf0ef; }  .sc-high  .sn { color: #c0392b; }
-    .sc-med   { background: #fef5ec; }  .sc-med   .sn { color: #d35400; }
-    .sc-low   { background: #edfbf3; }  .sc-low   .sn { color: #1e8449; }
-    .sc-info  { background: #eaf4fb; }  .sc-info  .sn { color: #1a5276; }
-
-    /* ── Application Details table ──────────────────── */
-    .details-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 9pt;
-    }
-    .details-table th {
-      background: #e8eef8;
-      color: #003399;
-      padding: 8px 12px;
-      text-align: left;
-      width: 22%;
-      border: 1px solid #c8d4ec;
-      font-weight: 600;
-    }
-    .details-table td {
-      border: 1px solid #c8d4ec;
-      padding: 8px 12px;
-    }
+    .stat-card .sn { font-size: 20pt; font-weight: 800; line-height: 1; min-width: 28px; text-align: right; }
+    .stat-card .sl { font-size: 8.5pt; color: #444; font-weight: 500; }
+    .sc-total { background: #eef1f8; border-left-color: #003399; }
+    .sc-total .sn { color: #003399; }
+    .sc-high  { background: #fdf0ef; border-left-color: #c0392b; } .sc-high  .sn { color: #c0392b; }
+    .sc-med   { background: #fef5ec; border-left-color: #d35400; } .sc-med   .sn { color: #d35400; }
+    .sc-low   { background: #edfbf3; border-left-color: #1e8449; } .sc-low   .sn { color: #1e8449; }
+    .sc-info  { background: #eaf4fb; border-left-color: #1a5276; } .sc-info  .sn { color: #1a5276; }
 
     /* ══════════════════════════════════════════════════
        PAGE 3+ — VULNERABILITY CARDS
@@ -327,21 +319,21 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .vuln-card.first-card { margin-top: 0; }
 
     .vuln-card-header {
-      background: linear-gradient(90deg, #003399, #0055cc);
+      background: linear-gradient(90deg, #001f6b 0%, #003399 70%, #0055cc 100%);
       color: #fff;
-      padding: 9px 14px;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 9.5pt;
     }
     .vuln-num  { font-weight: 800; flex-shrink: 0; }
     .vuln-name { font-weight: 600; flex: 1; }
 
-    /* Severity badge (pill) */
+    /* Severity badge */
     .sev-badge {
       display: inline-block;
-      padding: 2px 10px;
+      padding: 3px 12px;
       border-radius: 20px;
       font-size: 7.5pt;
       font-weight: 700;
@@ -353,7 +345,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .sev-Low           { background: #27ae60; color: #fff; }
     .sev-Informational { background: #2980b9; color: #fff; }
 
-    /* Severity text colour (inside table cell) */
+    /* Severity text colour inside table */
     .sev-text-High          { color: #c0392b; font-weight: 700; }
     .sev-text-Medium        { color: #e67e22; font-weight: 700; }
     .sev-text-Low           { color: #27ae60; font-weight: 700; }
@@ -367,7 +359,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     .row-th {
       background: #f0f4fb;
       color: #003399;
-      padding: 8px 12px;
+      padding: 9px 12px;
       text-align: left;
       width: 20%;
       border: 1px solid #c8d4ec;
@@ -376,7 +368,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     }
     .vuln-table td {
       border: 1px solid #c8d4ec;
-      padding: 8px 12px;
+      padding: 9px 12px;
       vertical-align: top;
     }
 
@@ -476,7 +468,8 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
 <!-- END TITLE PAGE -->
 
 
-<!-- ══════════════ PAGE 2 — SUMMARY + APP DETAILS ══════════════ -->
+<!-- ══════════════ PAGE 2 — VULNERABILITY SUMMARY ══════════════ -->
+<!-- NOTE: Application details are already on Page 1. No duplication here. -->
 <div class="summary-page">
 
   <div class="section-heading">1.0 &nbsp;Vulnerability Summary</div>
@@ -495,34 +488,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     </div>
   </div>
 
-  <div class="section-heading">2.0 &nbsp;Application &amp; Assessment Details</div>
-  <div class="section-body">
-    <table class="details-table">
-      <tbody>
-        <tr>
-          <th>Application ID</th><td>${escapeHtml(applicationDetails.appId)}</td>
-          <th>Application Name</th><td>${escapeHtml(applicationDetails.applicationName)}</td>
-        </tr>
-        <tr>
-          <th>Application Type</th><td>${escapeHtml(applicationDetails.appType)}</td>
-          <th>Application URL</th><td>${escapeHtml(applicationDetails.applicationUrl || 'N/A')}</td>
-        </tr>
-        <tr>
-          <th>Requestor POC</th><td>${escapeHtml(applicationDetails.requestorPocId)}</td>
-          <th>AppSec POC</th><td>${escapeHtml(applicationDetails.appsecPocId)}</td>
-        </tr>
-        <tr>
-          <th>Start Date</th><td>${escapeHtml(applicationDetails.assessmentStartDate)}</td>
-          <th>End Date</th><td>${escapeHtml(applicationDetails.assessmentEndDate)}</td>
-        </tr>
-        <tr>
-          <th>Environment</th><td>${escapeHtml(applicationDetails.testedEnvironment)}</td>
-          <th>Scan Report Type</th><td>${escapeHtml(applicationDetails.scanReportType)}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
 </div>
 <!-- END SUMMARY PAGE -->
 
@@ -530,7 +495,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
 <!-- ══════════════ PAGE 3+ — VULNERABILITY DETAILS ══════════════ -->
 <div class="vuln-details-page">
 
-  <div class="section-heading">3.0 &nbsp;Vulnerability Details</div>
+  <div class="section-heading">2.0 &nbsp;Vulnerability Details</div>
   <div class="section-body" style="padding-top: 4px;">
     ${vulnCardsHtml}
   </div>
@@ -539,7 +504,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
 <!-- END VULNERABILITY DETAILS -->
 
 
-<!-- Chart.js — loaded by Puppeteer's headless Chromium -->
+<!-- Chart.js — rendered by Puppeteer's headless Chromium -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   new Chart(document.getElementById('severityChart'), {
@@ -556,7 +521,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
         ],
         borderColor: ['#c0392b', '#d35400', '#1e8449', '#1a5276'],
         borderWidth: 1.5,
-        borderRadius: 3,
+        borderRadius: 4,
         borderSkipped: false
       }]
     },
@@ -572,7 +537,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
         y: {
           beginAtZero: true,
           ticks: { precision: 0, font: { size: 9 }, color: '#444' },
-          grid: { color: 'rgba(0,0,0,0.07)' }
+          grid: { color: 'rgba(0,0,0,0.06)' }
         },
         x: {
           ticks: { font: { size: 9 }, color: '#444' },
