@@ -1,26 +1,23 @@
-# ── Node dependencies (never commit these) ──────────
+# ── Node dependencies ─────────────────────────────
 node_modules/
 **/node_modules/
 
-# ── Puppeteer Chrome cache (huge, platform-specific) ─
+# ── Puppeteer Chrome cache (large, platform-specific)
 **/.cache/
 
-# ── Frontend build output (we copy this manually) ────
+# ── Build output (generated, never commit these) ──
 my-frontend-app/dist/
+my-backend-app/public/
 
-# ── Older unused folders ──────────────────────────────
-backend/
-frontend/
-
-# ── Logs ─────────────────────────────────────────────
+# ── Logs ──────────────────────────────────────────
 *.log
 npm-debug.log*
 
-# ── OS files ─────────────────────────────────────────
+# ── OS files ──────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# ── Local env overrides ───────────────────────────────
+# ── Local env overrides ───────────────────────────
 .env.local
 **/.env.local
