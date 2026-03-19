@@ -4,7 +4,10 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
-import db from './database.js'; // Re-introduce the database instance
+import db from './database.js';
+import { createRequire } from 'node:module';
+const _require = createRequire(import.meta.url);
+const applicationData = _require('./applications.json');
 import { generatePdfFromHtml } from './pdf-generator.js';
 import { generateMasaReportHtml } from './masa-report-template.js';
 import { generateDastReportHtml, buildReportTitle, buildDocTitle } from './dast-report-template.js';
@@ -29,6 +32,11 @@ app.use(cors());
 // running, even if other parts (like the frontend files) are not ready.
 app.get('/healthz', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Backend is healthy' });
+});
+
+// API Endpoint to fetch the application list
+app.get('/api/applications', (req, res) => {
+  res.json(applicationData);
 });
 
 // API Endpoint to fetch vulnerabilities from the database

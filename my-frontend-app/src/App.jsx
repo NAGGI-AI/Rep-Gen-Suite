@@ -2,16 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './App.css';
 
-// --- API Configuration ---
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// --- Data for Dropdowns ---
-const APP_ID_OPTIONS = ['APP-001', 'APP-002', 'CORP-WEB-01', 'API-GATEWAY'];
 const APP_TYPE_OPTIONS = ['Web Application', 'API', 'Mobile Backend'];
-const STATUS_OPTIONS = ['Open', 'Fixed', 'In Progress', 'Accepted Risk'];
+const STATUS_OPTIONS   = ['Open', 'Fixed', 'In Progress', 'Accepted Risk'];
 const SCAN_REPORT_OPTIONS = ['Initial', 'Rescan-1', 'Rescan-2', 'Rescan-3', 'Rescan-4', 'Rescan-5', 'Final'];
-const ENVIRONMENT_OPTIONS = ['SIT', 'UAT'];
-const SEVERITY_OPTIONS = ['High', 'Medium', 'Low', 'Informational'];
+const ENVIRONMENT_OPTIONS = ['SIT', 'UAT', 'Production'];
+const SEVERITY_OPTIONS    = ['High', 'Medium', 'Low', 'Informational'];
 
 const initialVulnerabilityState = {
   vulnerabilityName: '',
@@ -21,35 +18,45 @@ const initialVulnerabilityState = {
   remediation: 'Select a vulnerability to see details.',
   remark: '',
   affectedUrl: '',
-  evidence: [], // Array of { id, title, files[] }
+  evidence: [],
 };
 
 function App() {
   const evidenceFileInputRef = useRef(null);
 
+  const [applicationOptions, setApplicationOptions] = useState([]);
+  const [vulnerabilityOptions, setVulnerabilityOptions] = useState([]);
+
   const [applicationDetails, setApplicationDetails] = useState({
-    appId: APP_ID_OPTIONS[0],
-    applicationName: 'Corporate Portal',
-    requestorPocId: 'user123',
-    appsecPocId: 'sec_analyst_456',
+    appId: '',
+    applicationName: '',
+    requestorPocId: '',
+    appsecPocId: '',
     assessmentStartDate: new Date().toISOString().split('T')[0],
-    assessmentEndDate: new Date().toISOString().split('T')[0],
-    scanReportType: SCAN_REPORT_OPTIONS[0],
-    testedEnvironment: ENVIRONMENT_OPTIONS[0],
-    appType: APP_TYPE_OPTIONS[0],
-    applicationUrl: '',
+    assessmentEndDate:   new Date().toISOString().split('T')[0],
+    scanReportType:      SCAN_REPORT_OPTIONS[0],
+    testedEnvironment:   ENVIRONMENT_OPTIONS[0],
+    appType:             APP_TYPE_OPTIONS[0],
+    applicationUrl:      '',
   });
 
-  const [vulnerabilities, setVulnerabilities] = useState([]);
-  const [vulnerabilityOptions, setVulnerabilityOptions] = useState([]);
+  const [vulnerabilities, setVulnerabilities]       = useState([]);
   const [currentVulnerability, setCurrentVulnerability] = useState(initialVulnerabilityState);
-  const [tempEvidence, setTempEvidence] = useState({ title: '', files: [] });
+  const [tempEvidence, setTempEvidence]             = useState({ title: '', files: [] });
+
+  // Severity filter for report generation (all selected by default)
+  const [severityFilter, setSeverityFilter] = useState(['High', 'Medium', 'Low', 'Informational']);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError]         = useState('');
 
-  // Fetch vulnerabilities from backend on mount
+  // Fetch application list and vulnerability list on mount
   useEffect(() => {
+    fetch(`${API_BASE_URL}/api/applications`)
+      .then(res => res.json())
+      .then(data => setApplicationOptions(data))
+      .catch(err => console.error('Failed to fetch applications:', err));
+
     fetch(`${API_BASE_URL}/api/vulnerabilities`)
       .then(res => res.json())
       .then(response => {
@@ -60,10 +67,10 @@ function App() {
           }
         }
       })
-      .catch(err => console.error("Failed to fetch vulnerabilities:", err));
+      .catch(err => console.error('Failed to fetch vulnerabilities:', err));
   }, []);
 
-  // Auto-fill description and remediation when vulnerability name changes
+  // Auto-fill description/remediation when vulnerability selection changes
   useEffect(() => {
     const selected = vulnerabilityOptions.find(v => v.name === currentVulnerability.vulnerabilityName);
     if (selected) {
@@ -75,6 +82,14 @@ function App() {
     }
   }, [currentVulnerability.vulnerabilityName, vulnerabilityOptions]);
 
+  // When user picks an application from the dropdown, auto-fill ID + name
+  const handleApplicationSelect = (e) => {
+    const val = e.target.value;
+    if (!val) return;
+    const [id, ...nameParts] = val.split('|||');
+    setApplicationDetails(prev => ({ ...prev, appId: id, applicationName: nameParts.join('|||') }));
+  };
+
   const handleAppDetailsChange = (e) => {
     const { id, value } = e.target;
     setApplicationDetails(prev => ({ ...prev, [id]: value }));
@@ -85,7 +100,12 @@ function App() {
     setCurrentVulnerability(prev => ({ ...prev, [id]: value }));
   };
 
-  // Add a screenshot entry to the current vulnerability's evidence list
+  const toggleSeverityFilter = (sev) => {
+    setSeverityFilter(prev =>
+      prev.includes(sev) ? prev.filter(s => s !== sev) : [...prev, sev]
+    );
+  };
+
   const handleAddEvidence = (e) => {
     e.preventDefault();
     if (tempEvidence.files.length === 0) return;
@@ -97,7 +117,6 @@ function App() {
     if (evidenceFileInputRef.current) evidenceFileInputRef.current.value = '';
   };
 
-  // Remove a screenshot entry from the current vulnerability
   const removeEvidence = (id) => {
     setCurrentVulnerability(prev => ({
       ...prev,
@@ -114,27 +133,30 @@ function App() {
   };
 
   const handleGenerateReport = async () => {
-    if (vulnerabilities.length === 0) {
-      setError('Please add at least one vulnerability before generating a report.');
+    // Filter vulnerabilities by the selected severity checkboxes
+    const filtered = severityFilter.length === 0
+      ? vulnerabilities
+      : vulnerabilities.filter(v => severityFilter.includes(v.severity));
+
+    if (filtered.length === 0) {
+      setError('No vulnerabilities match the selected severity filter. Please adjust the filter or add matching vulnerabilities.');
       return;
     }
+
     setIsLoading(true);
     setError('');
 
     try {
       const formData = new FormData();
-
       formData.append('applicationDetails', JSON.stringify(applicationDetails));
 
-      // Strip File objects from evidence — send only id + title as text
-      const vulnerabilityTextData = vulnerabilities.map(({ evidence, ...rest }) => {
+      const vulnerabilityTextData = filtered.map(({ evidence, ...rest }) => {
         const evidenceTextData = evidence.map(({ files, ...evRest }) => evRest);
         return { ...rest, evidence: evidenceTextData };
       });
       formData.append('vulnerabilities', JSON.stringify(vulnerabilityTextData));
 
-      // Append each file keyed by its evidence entry id
-      vulnerabilities.forEach((vuln) => {
+      filtered.forEach((vuln) => {
         vuln.evidence.forEach((ev) => {
           ev.files.forEach((file, fileIndex) => {
             formData.append(`evidence_${ev.id}_${fileIndex}`, file);
@@ -152,16 +174,14 @@ function App() {
         try {
           const errorData = await response.json();
           errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          // Response was not JSON
-        }
+        } catch (_) {}
         throw new Error(errorMessage);
       }
 
       const pdfBlob = await response.blob();
       const url = window.URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
+      const a   = document.createElement('a');
+      a.href     = url;
       a.download = 'dast-report.pdf';
       document.body.appendChild(a);
       a.click();
@@ -175,6 +195,11 @@ function App() {
     }
   };
 
+  // Count how many added vulnerabilities match the current severity filter
+  const filteredCount = severityFilter.length === 0
+    ? vulnerabilities.length
+    : vulnerabilities.filter(v => severityFilter.includes(v.severity)).length;
+
   return (
     <div className="app-container">
       <header className="app-header">
@@ -185,25 +210,79 @@ function App() {
       </header>
 
       <main className="main-content">
+
+        {/* ── Application & Assessment Details ── */}
         <section className="card details-section">
           <h2>Application &amp; Assessment Details</h2>
           <form className="report-form">
+
+            {/* Application quick-select */}
+            <div className="form-group full-width" style={{ marginBottom: '1rem' }}>
+              <label htmlFor="appSelect">Select Application</label>
+              <select id="appSelect" defaultValue="" onChange={handleApplicationSelect}>
+                <option value="" disabled>— Choose application to auto-fill ID &amp; Name —</option>
+                {applicationOptions.map((app, i) => (
+                  <option key={i} value={`${app.id}|||${app.name}`}>
+                    {app.id} — {app.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="form-grid">
-              <div className="form-group"><label htmlFor="appId">Application ID</label><select id="appId" value={applicationDetails.appId} onChange={handleAppDetailsChange}>{APP_ID_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-              <div className="form-group"><label htmlFor="applicationName">Application Name</label><input type="text" id="applicationName" value={applicationDetails.applicationName} onChange={handleAppDetailsChange} /></div>
-              <div className="form-group"><label htmlFor="appType">Application Type</label><select id="appType" value={applicationDetails.appType} onChange={handleAppDetailsChange}>{APP_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-              <div className="form-group"><label htmlFor="requestorPocId">Requestor POC ID</label><input type="text" id="requestorPocId" value={applicationDetails.requestorPocId} onChange={handleAppDetailsChange} /></div>
-              <div className="form-group"><label htmlFor="appsecPocId">AppSec POC ID</label><input type="text" id="appsecPocId" value={applicationDetails.appsecPocId} onChange={handleAppDetailsChange} /></div>
-              <div className="form-group"><label htmlFor="scanReportType">Scan Report</label><select id="scanReportType" value={applicationDetails.scanReportType} onChange={handleAppDetailsChange}>{SCAN_REPORT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-              <div className="form-group"><label htmlFor="testedEnvironment">Tested Environment</label><select id="testedEnvironment" value={applicationDetails.testedEnvironment} onChange={handleAppDetailsChange}>{ENVIRONMENT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}</select></div>
-              <div className="form-group"><label htmlFor="applicationUrl">Application URL</label><input type="text" id="applicationUrl" value={applicationDetails.applicationUrl} onChange={handleAppDetailsChange} /></div>
-              <div className="form-group"><label htmlFor="assessmentStartDate">Assessment Start Date</label><input type="date" id="assessmentStartDate" value={applicationDetails.assessmentStartDate} onChange={handleAppDetailsChange} /></div>
-              <div className="form-group"><label htmlFor="assessmentEndDate">Assessment End Date</label><input type="date" id="assessmentEndDate" value={applicationDetails.assessmentEndDate} onChange={handleAppDetailsChange} /></div>
+              <div className="form-group">
+                <label htmlFor="appId">Application ID</label>
+                <input type="text" id="appId" value={applicationDetails.appId} onChange={handleAppDetailsChange} placeholder="e.g. 343" />
+              </div>
+              <div className="form-group">
+                <label htmlFor="applicationName">Application Name</label>
+                <input type="text" id="applicationName" value={applicationDetails.applicationName} onChange={handleAppDetailsChange} placeholder="e.g. One Communicator" />
+              </div>
+              <div className="form-group">
+                <label htmlFor="appType">Application Type</label>
+                <select id="appType" value={applicationDetails.appType} onChange={handleAppDetailsChange}>
+                  {APP_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="requestorPocId">Requestor POC ID</label>
+                <input type="text" id="requestorPocId" value={applicationDetails.requestorPocId} onChange={handleAppDetailsChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="appsecPocId">AppSec POC ID</label>
+                <input type="text" id="appsecPocId" value={applicationDetails.appsecPocId} onChange={handleAppDetailsChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="scanReportType">Scan Report Type</label>
+                <select id="scanReportType" value={applicationDetails.scanReportType} onChange={handleAppDetailsChange}>
+                  {SCAN_REPORT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="testedEnvironment">Tested Environment</label>
+                <select id="testedEnvironment" value={applicationDetails.testedEnvironment} onChange={handleAppDetailsChange}>
+                  {ENVIRONMENT_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                </select>
+              </div>
+              <div className="form-group full-width">
+                <label htmlFor="applicationUrl">Application URL</label>
+                <input type="text" id="applicationUrl" value={applicationDetails.applicationUrl} onChange={handleAppDetailsChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="assessmentStartDate">Assessment Start Date</label>
+                <input type="date" id="assessmentStartDate" value={applicationDetails.assessmentStartDate} onChange={handleAppDetailsChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="assessmentEndDate">Assessment End Date</label>
+                <input type="date" id="assessmentEndDate" value={applicationDetails.assessmentEndDate} onChange={handleAppDetailsChange} />
+              </div>
             </div>
           </form>
         </section>
 
         <div className="workspace-section">
+
+          {/* ── Add Vulnerability ── */}
           <section className="card form-panel">
             <h2>Add a Vulnerability</h2>
             <form onSubmit={handleAddVulnerability} className="report-form">
@@ -244,7 +323,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Evidence Screenshots Sub-section */}
               <div className="sub-section">
                 <h4 className="ss-header">Evidence Screenshots</h4>
                 <div className="sub-form">
@@ -279,6 +357,7 @@ function App() {
             </form>
           </section>
 
+          {/* ── Report Vulnerabilities + Generate ── */}
           <section className="card list-panel">
             <h2>Report Vulnerabilities ({vulnerabilities.length})</h2>
             <div className="vuln-list-container">
@@ -287,7 +366,16 @@ function App() {
                   {vulnerabilities.map((vuln) => (
                     <li key={vuln.id}>
                       <div className="vuln-info">
-                        <strong>{vuln.vulnerabilityName}</strong> ({vuln.severity})
+                        <strong>{vuln.vulnerabilityName}</strong>
+                        <span style={{
+                          marginLeft: '8px',
+                          padding: '2px 8px',
+                          borderRadius: '10px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          color: '#fff',
+                          background: { High: '#c0392b', Medium: '#e67e22', Low: '#27ae60', Informational: '#2980b9' }[vuln.severity] || '#888'
+                        }}>{vuln.severity}</span>
                         {vuln.evidence.length > 0 && (
                           <span className="file-name"> — {vuln.evidence.length} screenshot(s)</span>
                         )}
@@ -298,9 +386,46 @@ function App() {
                 </ul>
               ) : <p>No vulnerabilities added yet.</p>}
             </div>
+
+            {/* Severity filter */}
             <div className="generate-section">
-              <button onClick={handleGenerateReport} disabled={isLoading || vulnerabilities.length === 0}>
-                {isLoading ? 'Generating...' : 'Generate Final PDF Report'}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
+                  Generate Report For Severity:
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {SEVERITY_OPTIONS.map(sev => {
+                    const colors = { High: '#c0392b', Medium: '#e67e22', Low: '#27ae60', Informational: '#2980b9' };
+                    const checked = severityFilter.includes(sev);
+                    return (
+                      <label key={sev} style={{
+                        display: 'flex', alignItems: 'center', gap: '5px',
+                        padding: '5px 12px', borderRadius: '20px', cursor: 'pointer',
+                        border: `2px solid ${colors[sev]}`,
+                        background: checked ? colors[sev] : 'transparent',
+                        color: checked ? '#fff' : colors[sev],
+                        fontWeight: 600, fontSize: '0.85rem', userSelect: 'none'
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleSeverityFilter(sev)}
+                          style={{ display: 'none' }}
+                        />
+                        {sev}
+                      </label>
+                    );
+                  })}
+                </div>
+                {vulnerabilities.length > 0 && (
+                  <p style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+                    {filteredCount} of {vulnerabilities.length} vulnerabilities will be included.
+                  </p>
+                )}
+              </div>
+
+              <button onClick={handleGenerateReport} disabled={isLoading || filteredCount === 0}>
+                {isLoading ? 'Generating...' : `Generate PDF Report (${filteredCount})`}
               </button>
               {error && <p className="error-message">{error}</p>}
             </div>
