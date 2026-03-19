@@ -49,8 +49,14 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
   const totalFixed = vulnerabilities.filter(v => v.status === 'Fixed').length;
   const totalOpen  = totalVulns - totalFixed;
 
+  // ─── SORT VULNERABILITIES BY SEVERITY ─────────────────────────────────────
+  const SEVERITY_ORDER = { High: 1, Medium: 2, Low: 3, Informational: 4 };
+  const sortedVulns = [...vulnerabilities].sort(
+    (a, b) => (SEVERITY_ORDER[a.severity] || 5) - (SEVERITY_ORDER[b.severity] || 5)
+  );
+
   // ─── VULNERABILITY CARDS ───────────────────────────────────────────────────
-  const vulnCardsHtml = vulnerabilities.map((vuln, index) => {
+  const vulnCardsHtml = sortedVulns.map((vuln, index) => {
     const statusClass = {
       'Open': 'status-open', 'Fixed': 'status-fixed',
       'In Progress': 'status-inprogress', 'Accepted Risk': 'status-accepted',
@@ -151,42 +157,50 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px;
   }
   .cover-summary-inner {
-    display: flex; gap: 12px; align-items: flex-start;
-    border: 1px solid #c8d4ec; border-radius: 5px; padding: 12px;
-    background: #f7f9ff;
+    border: 1px solid #c8d4ec; border-radius: 5px;
+    background: #f7f9ff; overflow: hidden;
+  }
+
+  /* Row 1: chart + stat cards side by side */
+  .summary-row1 {
+    display: flex; gap: 0; align-items: stretch;
+    border-bottom: 1px solid #c8d4ec;
   }
 
   /* Chart column */
-  .chart-col { width: 220px; flex-shrink: 0; }
-  .chart-col canvas { width: 220px; height: 140px; }
+  .chart-col {
+    width: 240px; flex-shrink: 0; padding: 12px;
+    border-right: 1px solid #c8d4ec; display: flex;
+    flex-direction: column; justify-content: center; align-items: center;
+  }
+  .chart-col canvas { width: 216px !important; height: 130px !important; }
 
-  /* Stat cards column */
+  /* Stat cards — horizontal row */
   .stats-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5px;
-    flex: 1;
-    align-content: start;
+    flex: 1; display: flex; flex-direction: row;
+    align-items: stretch; gap: 0;
   }
   .stat-card {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 10px; border-radius: 5px; border-left: 3px solid transparent;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px;
+    padding: 10px 6px; border-right: 1px solid #c8d4ec;
+    border-left: none; border-top: 3px solid transparent;
   }
-  .stat-card .sn { font-size: 16pt; font-weight: 800; line-height: 1; min-width: 22px; text-align: right; }
-  .stat-card .sl { font-size: 7.5pt; color: #444; font-weight: 500; }
-  .sc-total { background: #eef1f8; border-left-color: #003399; grid-column: span 2; }
-  .sc-total .sn { color: #003399; }
-  .sc-high  { background: #fdf0ef; border-left-color: #c0392b; } .sc-high  .sn { color: #c0392b; }
-  .sc-med   { background: #fef5ec; border-left-color: #d35400; } .sc-med   .sn { color: #d35400; }
-  .sc-low   { background: #edfbf3; border-left-color: #1e8449; } .sc-low   .sn { color: #1e8449; }
-  .sc-info  { background: #eaf4fb; border-left-color: #1a5276; } .sc-info  .sn { color: #1a5276; }
+  .stat-card:last-child { border-right: none; }
+  .stat-card .sn { font-size: 20pt; font-weight: 800; line-height: 1; }
+  .stat-card .sl { font-size: 7pt; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sc-total { background: #eef1f8; border-top-color: #003399; } .sc-total .sn { color: #003399; }
+  .sc-high  { background: #fdf0ef; border-top-color: #c0392b; } .sc-high  .sn { color: #c0392b; }
+  .sc-med   { background: #fef5ec; border-top-color: #d35400; } .sc-med   .sn { color: #d35400; }
+  .sc-low   { background: #edfbf3; border-top-color: #1e8449; } .sc-low   .sn { color: #1e8449; }
+  .sc-info  { background: #eaf4fb; border-top-color: #1a5276; } .sc-info  .sn { color: #1a5276; }
 
-  /* Overview matrix column */
-  .matrix-col { flex: 1.2; }
+  /* Row 2: full-width matrix */
+  .summary-row2 { padding: 10px 12px; }
   .matrix-table { width: 100%; border-collapse: collapse; font-size: 8pt; text-align: center; }
-  .matrix-table th { background: #003399; color: #fff; padding: 6px 8px; border: 1px solid #0044bb; font-weight: 600; }
-  .matrix-table td { border: 1px solid #c8d4ec; padding: 6px 8px; font-weight: 700; background: #fff; }
-  .matrix-table .row-label { background: #e8eef8; color: #003399; font-weight: 700; }
+  .matrix-table th { background: #003399; color: #fff; padding: 6px 10px; border: 1px solid #0044bb; font-weight: 600; }
+  .matrix-table td { border: 1px solid #c8d4ec; padding: 6px 10px; font-weight: 700; background: #fff; }
+  .matrix-table .row-label { background: #e8eef8; color: #003399; font-weight: 700; text-align: left; }
   .c-high { color: #c0392b; } .c-med { color: #d35400; }
   .c-low  { color: #1e8449; } .c-info { color: #1a5276; }
 
@@ -287,35 +301,35 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
     </tbody>
   </table>
 
-  <!-- Vulnerability Summary — compact 3-column layout on cover page -->
+  <!-- Vulnerability Summary — 2-row layout on cover page -->
   <div class="cover-summary">
     <div class="cover-summary-label">Vulnerability Summary</div>
     <div class="cover-summary-inner">
 
-      <!-- Bar chart -->
-      <div class="chart-col">
-        <canvas id="severityChart"></canvas>
+      <!-- Row 1: Chart (left) + Stat cards (right) -->
+      <div class="summary-row1">
+        <div class="chart-col">
+          <canvas id="severityChart"></canvas>
+        </div>
+        <div class="stats-col">
+          <div class="stat-card sc-total"><div class="sn">${totalVulns}</div><div class="sl">Total</div></div>
+          <div class="stat-card sc-high"><div class="sn">${severityCounts.High}</div><div class="sl">High</div></div>
+          <div class="stat-card sc-med"><div class="sn">${severityCounts.Medium}</div><div class="sl">Medium</div></div>
+          <div class="stat-card sc-low"><div class="sn">${severityCounts.Low}</div><div class="sl">Low</div></div>
+          <div class="stat-card sc-info"><div class="sn">${severityCounts.Informational}</div><div class="sl">Info</div></div>
+        </div>
       </div>
 
-      <!-- Stat cards -->
-      <div class="stats-col">
-        <div class="stat-card sc-total"><div class="sn">${totalVulns}</div><div class="sl">Total</div></div>
-        <div class="stat-card sc-high"><div class="sn">${severityCounts.High}</div><div class="sl">High</div></div>
-        <div class="stat-card sc-med"><div class="sn">${severityCounts.Medium}</div><div class="sl">Medium</div></div>
-        <div class="stat-card sc-low"><div class="sn">${severityCounts.Low}</div><div class="sl">Low</div></div>
-        <div class="stat-card sc-info"><div class="sn">${severityCounts.Informational}</div><div class="sl">Info</div></div>
-      </div>
-
-      <!-- Overview matrix -->
-      <div class="matrix-col">
+      <!-- Row 2: Full-width overview matrix -->
+      <div class="summary-row2">
         <table class="matrix-table">
           <thead>
             <tr>
-              <th></th>
+              <th style="text-align:left; width:15%;">Status</th>
               <th class="c-high">High</th>
-              <th class="c-med">Med</th>
+              <th class="c-med">Medium</th>
               <th class="c-low">Low</th>
-              <th class="c-info">Info</th>
+              <th class="c-info">Informational</th>
               <th>Total</th>
             </tr>
           </thead>
@@ -326,7 +340,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <td class="c-med">${matrix.Medium.total}</td>
               <td class="c-low">${matrix.Low.total}</td>
               <td class="c-info">${matrix.Informational.total}</td>
-              <td>${totalVulns}</td>
+              <td><strong>${totalVulns}</strong></td>
             </tr>
             <tr>
               <td class="row-label">Open</td>
@@ -334,7 +348,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <td class="c-med">${matrix.Medium.open}</td>
               <td class="c-low">${matrix.Low.open}</td>
               <td class="c-info">${matrix.Informational.open}</td>
-              <td>${totalOpen}</td>
+              <td><strong>${totalOpen}</strong></td>
             </tr>
             <tr>
               <td class="row-label">Fixed</td>
@@ -342,7 +356,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <td class="c-med">${matrix.Medium.fixed}</td>
               <td class="c-low">${matrix.Low.fixed}</td>
               <td class="c-info">${matrix.Informational.fixed}</td>
-              <td>${totalFixed}</td>
+              <td><strong>${totalFixed}</strong></td>
             </tr>
           </tbody>
         </table>
