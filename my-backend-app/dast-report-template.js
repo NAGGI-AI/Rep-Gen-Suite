@@ -13,9 +13,7 @@ function escapeHtml(unsafe) {
 }
 
 export function buildDocTitle(appType) {
-  if (appType === 'API') return 'Web API DAST Report';
-  if (appType === 'Web Application') return 'Web Application DAST Report';
-  return `${appType || 'Application'} DAST Report`;
+  return 'Manual DAST Report';
 }
 
 export function buildReportTitle(scanReportType) {
@@ -273,7 +271,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
   <div class="title-block">
     <div class="app-name">${escapeHtml(applicationDetails.applicationName)}</div>
     <div class="report-type">${escapeHtml(docTitle)}</div>
-    <div class="generated-on">Generated on ${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' })}</div>
   </div>
 
   <table class="meta-table">
@@ -312,7 +309,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
           <canvas id="severityChart"></canvas>
         </div>
         <div class="stats-col">
-          <div class="stat-card sc-total"><div class="sn">${totalVulns}</div><div class="sl">Total</div></div>
           <div class="stat-card sc-high"><div class="sn">${severityCounts.High}</div><div class="sl">High</div></div>
           <div class="stat-card sc-med"><div class="sn">${severityCounts.Medium}</div><div class="sl">Medium</div></div>
           <div class="stat-card sc-low"><div class="sn">${severityCounts.Low}</div><div class="sl">Low</div></div>
@@ -343,20 +339,20 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <td><strong>${totalVulns}</strong></td>
             </tr>
             <tr>
-              <td class="row-label">Open</td>
-              <td class="c-high">${matrix.High.open}</td>
-              <td class="c-med">${matrix.Medium.open}</td>
-              <td class="c-low">${matrix.Low.open}</td>
-              <td class="c-info">${matrix.Informational.open}</td>
-              <td><strong>${totalOpen}</strong></td>
-            </tr>
-            <tr>
               <td class="row-label">Fixed</td>
               <td class="c-high">${matrix.High.fixed}</td>
               <td class="c-med">${matrix.Medium.fixed}</td>
               <td class="c-low">${matrix.Low.fixed}</td>
               <td class="c-info">${matrix.Informational.fixed}</td>
               <td><strong>${totalFixed}</strong></td>
+            </tr>
+            <tr>
+              <td class="row-label">Open</td>
+              <td class="c-high">${matrix.High.open}</td>
+              <td class="c-med">${matrix.Medium.open}</td>
+              <td class="c-low">${matrix.Low.open}</td>
+              <td class="c-info">${matrix.Informational.open}</td>
+              <td><strong>${totalOpen}</strong></td>
             </tr>
           </tbody>
         </table>
@@ -387,8 +383,8 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
       labels: ['High', 'Medium', 'Low', 'Info'],
       datasets: [{
         data: [${severityCounts.High}, ${severityCounts.Medium}, ${severityCounts.Low}, ${severityCounts.Informational}],
-        backgroundColor: ['rgba(192,57,43,.85)','rgba(211,84,0,.85)','rgba(30,132,73,.85)','rgba(26,82,118,.85)'],
-        borderColor:     ['#c0392b','#d35400','#1e8449','#1a5276'],
+        backgroundColor: ['rgba(192,57,43,.85)','rgba(211,84,0,.85)','rgba(241,196,15,.85)','rgba(41,128,185,.85)'],
+        borderColor:     ['#c0392b','#d35400','#f1c40f','#2980b9'],
         borderWidth: 1.5, borderRadius: 3, borderSkipped: false
       }]
     },
