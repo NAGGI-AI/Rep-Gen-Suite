@@ -29,7 +29,7 @@ export function buildReportTitle(scanReportType) {
   return map[scanReportType] || `DAST ${scanReportType} Vulnerability Report`;
 }
 
-export function generateDastReportHtml({ applicationDetails, vulnerabilities, severityCounts }) {
+export function generateDastReportHtml({ applicationDetails, vulnerabilities, severityCounts, logoBase64 }) {
   const docTitle   = buildDocTitle(applicationDetails.appType);
   const totalVulns = vulnerabilities.length;
 
@@ -62,7 +62,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
 
     const borderColor = {
       'High': '#c0392b', 'Medium': '#e67e22',
-      'Low': '#27ae60', 'Informational': '#2980b9',
+      'Low': '#d4ac0d', 'Informational': '#2980b9',
     }[vuln.severity] || '#003399';
 
     const evidenceHtml = (vuln.evidence && vuln.evidence.length > 0)
@@ -120,12 +120,15 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
 
   .brand-mark {
     text-align: right;
-    font-size: 34pt;
-    font-weight: 900;
-    color: #003399;
-    letter-spacing: -1px;
     padding-bottom: 8px;
     border-bottom: 3px solid #003399;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .brand-mark img { height: 40px; width: auto; }
+  .brand-mark span {
+    font-size: 34pt; font-weight: 900; color: #003399; letter-spacing: -1px;
   }
 
   .title-block {
@@ -190,8 +193,8 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
   .sc-total { background: #eef1f8; border-top-color: #003399; } .sc-total .sn { color: #003399; }
   .sc-high  { background: #fdf0ef; border-top-color: #c0392b; } .sc-high  .sn { color: #c0392b; }
   .sc-med   { background: #fef5ec; border-top-color: #d35400; } .sc-med   .sn { color: #d35400; }
-  .sc-low   { background: #edfbf3; border-top-color: #1e8449; } .sc-low   .sn { color: #1e8449; }
-  .sc-info  { background: #eaf4fb; border-top-color: #1a5276; } .sc-info  .sn { color: #1a5276; }
+  .sc-low   { background: #fefce8; border-top-color: #d4ac0d; } .sc-low   .sn { color: #d4ac0d; }
+  .sc-info  { background: #eaf4fb; border-top-color: #2980b9; } .sc-info  .sn { color: #2980b9; }
 
   /* Row 2: full-width matrix */
   .summary-row2 { padding: 10px 12px; }
@@ -200,7 +203,7 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
   .matrix-table td { border: 1px solid #c8d4ec; padding: 6px 10px; font-weight: 700; background: #fff; }
   .matrix-table .row-label { background: #e8eef8; color: #003399; font-weight: 700; text-align: left; }
   .c-high { color: #c0392b; } .c-med { color: #d35400; }
-  .c-low  { color: #1e8449; } .c-info { color: #1a5276; }
+  .c-low  { color: #d4ac0d; } .c-info { color: #2980b9; }
 
   /* ── PAGE 2+: VULNERABILITY DETAILS ──────────────── */
   .vuln-details-page { page-break-before: always; }
@@ -235,12 +238,12 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
   }
   .sev-High          { background: #c0392b; color: #fff; }
   .sev-Medium        { background: #e67e22; color: #fff; }
-  .sev-Low           { background: #27ae60; color: #fff; }
+  .sev-Low           { background: #d4ac0d; color: #fff; }
   .sev-Informational { background: #2980b9; color: #fff; }
 
   .sev-text-High          { color: #c0392b; font-weight: 700; }
   .sev-text-Medium        { color: #e67e22; font-weight: 700; }
-  .sev-text-Low           { color: #27ae60; font-weight: 700; }
+  .sev-text-Low           { color: #d4ac0d; font-weight: 700; }
   .sev-text-Informational { color: #2980b9; font-weight: 700; }
 
   .vuln-table { width: 100%; border-collapse: collapse; font-size: 8.5pt; }
@@ -266,7 +269,11 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
 <!-- ═══════════════ PAGE 1 — COVER + SUMMARY ═══════════════ -->
 <div class="title-page">
 
-  <div class="brand-mark">Cognizant</div>
+  <div class="brand-mark">
+    ${logoBase64
+      ? `<img src="${logoBase64}" alt="Cognizant" />`
+      : `<span>Cognizant</span>`}
+  </div>
 
   <div class="title-block">
     <div class="app-name">${escapeHtml(applicationDetails.applicationName)}</div>
@@ -326,7 +333,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <th class="c-med">Medium</th>
               <th class="c-low">Low</th>
               <th class="c-info">Informational</th>
-              <th>Total</th>
             </tr>
           </thead>
           <tbody>
@@ -336,7 +342,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <td class="c-med">${matrix.Medium.total}</td>
               <td class="c-low">${matrix.Low.total}</td>
               <td class="c-info">${matrix.Informational.total}</td>
-              <td><strong>${totalVulns}</strong></td>
             </tr>
             <tr>
               <td class="row-label">Fixed</td>
@@ -344,7 +349,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <td class="c-med">${matrix.Medium.fixed}</td>
               <td class="c-low">${matrix.Low.fixed}</td>
               <td class="c-info">${matrix.Informational.fixed}</td>
-              <td><strong>${totalFixed}</strong></td>
             </tr>
             <tr>
               <td class="row-label">Open</td>
@@ -352,7 +356,6 @@ export function generateDastReportHtml({ applicationDetails, vulnerabilities, se
               <td class="c-med">${matrix.Medium.open}</td>
               <td class="c-low">${matrix.Low.open}</td>
               <td class="c-info">${matrix.Informational.open}</td>
-              <td><strong>${totalOpen}</strong></td>
             </tr>
           </tbody>
         </table>

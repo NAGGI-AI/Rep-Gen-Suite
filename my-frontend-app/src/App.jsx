@@ -395,7 +395,7 @@ function App() {
                 </label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {SEVERITY_OPTIONS.map(sev => {
-                    const colors = { High: '#c0392b', Medium: '#e67e22', Low: '#27ae60', Informational: '#2980b9' };
+                    const colors = { High: '#c0392b', Medium: '#e67e22', Low: '#d4ac0d', Informational: '#2980b9' };
                     const checked = severityFilter.includes(sev);
                     return (
                       <label key={sev} style={{

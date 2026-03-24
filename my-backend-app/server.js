@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { Buffer } from 'buffer';
 import multer from 'multer';
 import db from './database.js';
 import { createRequire } from 'node:module';
@@ -16,6 +17,13 @@ const app = express();
 // --- Setup for serving static files ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// --- Load Cognizant logo as base64 for PDF embedding ---
+let cognizantLogoBase64 = null;
+const logoPath = path.join(__dirname, 'assets', 'cognizant-logo.png');
+if (fs.existsSync(logoPath)) {
+  cognizantLogoBase64 = 'data:image/png;base64,' + fs.readFileSync(logoPath).toString('base64');
+}
 
 // Use the port Azure provides, or 3001 for local development.
 const port = process.env.PORT || 3001;
@@ -108,7 +116,7 @@ app.post('/api/generate-report', upload.any(), async (req, res, next) => {
 
 
     // 2. Generate HTML using the dedicated template module
-    const htmlContent = generateDastReportHtml({ applicationDetails, vulnerabilities, severityCounts });
+    const htmlContent = generateDastReportHtml({ applicationDetails, vulnerabilities, severityCounts, logoBase64: cognizantLogoBase64 });
 
     // 3. Build dynamic header / footer strings
     const reportTitle = buildReportTitle(applicationDetails.scanReportType);
