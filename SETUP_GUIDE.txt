@@ -1,79 +1,200 @@
-DAST REPORT GENERATOR — HOW TO SET UP & USE
-============================================
+
+DAST & MASA REPORT GENERATOR — SETUP & USER GUIDE
+===================================================
+Cognizant Application Security Practice
+Last Updated: May 2026
+===================================================
 
 
-BEFORE YOU START — Install Node.js (One Time Only)
----------------------------------------------------
-1. Go to this website:  https://nodejs.org
-2. Click the green "LTS" download button
-3. Install it like any normal software (keep clicking Next, then Finish)
+WHAT IS THIS TOOL?
+------------------
+This tool helps you generate professional, Cognizant-branded PDF security
+reports for DAST (Dynamic Application Security Testing) and MASA (Manual
+Application Security Assessment) engagements — directly from your laptop,
+without needing any external software or internet connection.
 
 
-STEP 1 — Get the Project Files
--------------------------------
-1. Your team lead will share the  Rep_Gen_Suite  folder with you via OneDrive or Teams
-2. Copy the entire  Rep_Gen_Suite  folder to your local machine
-   (e.g. copy it to your Desktop or Documents folder)
-3. Make sure the folder is fully copied before continuing
+===================================================
+BEFORE YOU START — ONE-TIME REQUIREMENT
+===================================================
+
+You need to install Node.js on your laptop. This is a free software that
+runs the tool in the background. You only do this once.
+
+  1. Open your browser and go to:   https://nodejs.org
+  2. Click the big green button that says "LTS" (recommended version)
+  3. Download and install it like any normal software
+     (keep clicking Next → Next → Finish)
+  4. Restart your laptop after installation
 
 
-STEP 2 — First Time Setup (Do this ONCE only)
-----------------------------------------------
-1. Open the  Rep_Gen_Suite  folder
-2. Open the  my-backend-app  folder
-3. In the address bar at the top, type  powershell  and press Enter
-4. In the black window that opens, type this and press Enter:
+===================================================
+STEP 1 — GET THE PROJECT FILES
+===================================================
+
+Your team lead will share the  Rep_Gen_Suite  folder with you via
+OneDrive or Microsoft Teams.
+
+  1. Download or copy the entire  Rep_Gen_Suite  folder to your laptop
+     (recommended location: your Desktop or Documents folder)
+  2. Make sure the entire folder is copied — do not open it while
+     it is still downloading/syncing
+
+
+===================================================
+STEP 2 — FIRST TIME SETUP  (Do this ONCE only)
+===================================================
+
+You need to install the tool's internal packages. This takes 3-5 minutes
+and only needs to be done once per laptop.
+
+PART A — Backend Setup:
+  1. Open the  Rep_Gen_Suite  folder
+  2. Open the  my-backend-app  folder inside it
+  3. Click on the address bar at the top of File Explorer
+     (where it shows the folder path)
+  4. Type  powershell  and press Enter
+     (a blue/black window will open)
+  5. Type the following and press Enter:
         npm install
-   Wait for it to finish (takes 2-5 minutes)
+  6. Wait until it finishes. You will see no error in red.
+     This downloads Chromium (~170 MB) — takes 2-5 minutes.
 
-5. Now go back and open the  my-frontend-app  folder
-6. Again type  powershell  in the address bar and press Enter
-7. Type this and press Enter:
+PART B — Frontend Setup:
+  1. Go back to the  Rep_Gen_Suite  folder
+  2. Open the  my-frontend-app  folder
+  3. Click the address bar, type  powershell  and press Enter
+  4. Type the following and press Enter:
         npm install
-   Wait for it to finish
+  5. Wait until it finishes (takes 1-2 minutes)
+
+Once both are done, you never need to do this step again on this laptop.
 
 
-STEP 3 — Run the App (Do this Every Time)
-------------------------------------------
-You need to open TWO black windows (PowerShell)
+===================================================
+STEP 3 — RUN THE APP  (Every time you want to use it)
+===================================================
 
-   Window 1 — open inside the  my-backend-app  folder:
-      Type this and press Enter:
-         npm start
-      You will see: "Server running on port 3001"
-      Leave this window open.
+  1. Go to the  Rep_Gen_Suite  folder
+  2. Double-click  Start App.bat
 
-   Window 2 — open inside the  my-frontend-app  folder:
-      Type this and press Enter:
-         npm run dev
-      You will see: "http://localhost:5173"
-      Leave this window open.
+That is it. The tool will:
+  - Automatically fix any port conflicts
+  - Open the backend server in a window (leave it open)
+  - Open the frontend in a window (leave it open)
+  - Open your browser automatically at  http://localhost:5173
 
-
-STEP 4 — Open the App
-----------------------
-1. Open Chrome or Edge browser
-2. Type  http://localhost:5173  in the address bar
-3. Press Enter
-4. The app will open
+If the browser does not open automatically, open Chrome or Edge
+and go to:   http://localhost:5173
 
 
-STEP 5 — Generate a Report
-----------------------------
-1. Select your Application from the dropdown
-2. Fill in the details (dates, environment, etc.)
-3. Add vulnerabilities
-4. Click "Generate PDF Report"
-5. PDF will download automatically
+===================================================
+STEP 4 — GENERATE A DAST REPORT
+===================================================
+
+  1. On the home page, click  "DAST Report Generator"
+
+  2. Fill in Application & Assessment Details:
+     - Select your application from the dropdown (auto-fills ID and Name)
+     - OR manually type the Application ID and Application Name
+     - Fill in Requestor POC ID, AppSec POC ID
+     - Set Assessment Start and End dates
+     - Select Environment (SIT / UAT / Production)
+     - Select Scan Report Type (Initial / Rescan-1 ... / Final)
+     - Enter Application URL
+
+  3. Add Vulnerabilities (repeat for each finding):
+     - Type the vulnerability name in the search box
+       (start typing and a suggestion list will appear from 157 entries)
+       OR type a completely custom name if not in the list
+     - Select Severity: High / Medium / Low / Informational
+     - Description and Remediation auto-fill if the name matches the DB
+       (you can edit these freely)
+     - Enter Affected URL and Status (Open / Fixed / In Progress)
+     - Add a Remark if needed
+     - Upload evidence screenshots if available
+     - Click  "Add Vulnerability to Report"
+     - Repeat for all findings
+
+  4. Use the Severity Filter (top of right panel) to include/exclude
+     specific severity levels from the report
+
+  5. Click  "Generate PDF Report (X)"
+     The PDF will download to your Downloads folder automatically
 
 
-TO CLOSE THE APP
------------------
-Press  Ctrl + C  in both black windows
+===================================================
+STEP 5 — GENERATE A MASA REPORT
+===================================================
+
+  1. On the home page, click  "MASA Report Generator"
+  2. Fill in application and assessment details
+  3. Add findings with risk level, status, and screenshots
+  4. Add assessment history entries
+  5. Click  "Generate MASA Report"
+  6. PDF downloads automatically (landscape format)
 
 
+===================================================
+CLOSE THE APP
+===================================================
+
+  Option A (Recommended):
+  Double-click  Stop App.bat  in the Rep_Gen_Suite folder
+  This cleanly stops both servers.
+
+  Option B (Manual):
+  Press  Ctrl + C  in both the backend and frontend windows,
+  then close those windows.
+
+
+===================================================
 SOMETHING NOT WORKING?
------------------------
-- Make sure both black windows are still running
-- Try restarting your laptop and repeat Step 3
-- Contact your team lead for help
+===================================================
+
+Problem: Red banner says "Backend server is not running"
+Fix:     You may have skipped Start App.bat or closed the backend window.
+         Double-click Start App.bat again.
+
+Problem: "Port 3001 is already in use" error in the backend window
+Fix:     Double-click Stop App.bat first, then Start App.bat again.
+         OR run this in PowerShell:
+         Stop-Process -Id (Get-NetTCPConnection -LocalPort 3001).OwningProcess -Force
+
+Problem: Vulnerability list is empty / not loading
+Fix:     The backend is not running. Double-click Start App.bat and
+         refresh the browser page (press F5).
+
+Problem: PDF does not download
+Fix:     Make sure the backend window is still open and running.
+         Look for any red error text in the backend window.
+
+Problem: npm install gives errors
+Fix:     Make sure Node.js is installed: open PowerShell and type
+              node --version
+         If it shows a version number (e.g. v22.x.x), Node.js is installed.
+         If it says "not recognized", reinstall Node.js from nodejs.org
+
+Problem: App not opening in browser
+Fix:     Open Chrome or Edge manually and go to  http://localhost:5173
+         Make sure both backend and frontend windows are still open.
+
+For anything else, contact your team lead.
+
+
+===================================================
+QUICK REFERENCE CARD
+===================================================
+
+  First time only:
+    my-backend-app  folder  →  powershell  →  npm install
+    my-frontend-app folder  →  powershell  →  npm install
+
+  Every time:
+    Double-click  Start App.bat   →  app opens in browser
+    Double-click  Stop App.bat    →  app shuts down
+
+  App URL:   http://localhost:5173
+  Backend:   http://localhost:3001  (runs in background)
+
+===================================================
