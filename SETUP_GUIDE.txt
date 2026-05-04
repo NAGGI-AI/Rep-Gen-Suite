@@ -11,16 +11,10 @@ BEFORE YOU START — Install Node.js (One Time Only)
 
 STEP 1 — Get the Project Files
 -------------------------------
-Option A — Download from GitHub (recommended):
-1. Open this link in your browser:  https://github.com/NAGGI-AI/Rep-Gen-Suite
-2. Click the green "Code" button → Click "Download ZIP"
-3. Right-click the downloaded zip → "Extract All" → Click Extract
-4. You will see a folder called  Rep-Gen-Suite-main  (rename it to  Rep_Gen_Suite  if you like)
-
-Option B — Clone with Git (if you have Git installed):
-1. Open PowerShell anywhere and run:
-        git clone https://github.com/NAGGI-AI/Rep-Gen-Suite.git
-2. You will see a folder called  Rep-Gen-Suite
+1. Your team lead will share the  Rep_Gen_Suite  folder with you via OneDrive or Teams
+2. Copy the entire  Rep_Gen_Suite  folder to your local machine
+   (e.g. copy it to your Desktop or Documents folder)
+3. Make sure the folder is fully copied before continuing
 
 
 STEP 2 — First Time Setup (Do this ONCE only)
