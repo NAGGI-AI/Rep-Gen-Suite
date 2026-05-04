@@ -14,8 +14,8 @@ const initialVulnerabilityState = {
   vulnerabilityName: '',
   severity: 'High',
   status: STATUS_OPTIONS[0],
-  description: 'Select a vulnerability to see details.',
-  remediation: 'Select a vulnerability to see details.',
+  description: '',
+  remediation: '',
   remark: '',
   affectedUrl: '',
   evidence: [],
@@ -49,25 +49,24 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError]         = useState('');
+  const [backendStatus, setBackendStatus] = useState(null); // null=checking, true=ok, false=down
 
   // Fetch application list and vulnerability list on mount
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/applications`)
-      .then(res => res.json())
-      .then(data => setApplicationOptions(data))
-      .catch(err => console.error('Failed to fetch applications:', err));
-
-    fetch(`${API_BASE_URL}/api/vulnerabilities`)
-      .then(res => res.json())
-      .then(response => {
-        if (response.data) {
-          setVulnerabilityOptions(response.data);
-          if (response.data.length > 0) {
-            setCurrentVulnerability(curr => ({ ...curr, vulnerabilityName: response.data[0].name }));
-          }
-        }
-      })
-      .catch(err => console.error('Failed to fetch vulnerabilities:', err));
+    Promise.allSettled([
+      fetch(`${API_BASE_URL}/api/applications`).then(r => r.json()),
+      fetch(`${API_BASE_URL}/api/vulnerabilities`).then(r => r.json()),
+    ]).then(([appsResult, vulnsResult]) => {
+      if (appsResult.status === 'fulfilled') {
+        setApplicationOptions(appsResult.value);
+      }
+      if (vulnsResult.status === 'fulfilled' && vulnsResult.value.data) {
+        setVulnerabilityOptions(vulnsResult.value.data);
+      }
+      setBackendStatus(
+        appsResult.status === 'fulfilled' || vulnsResult.status === 'fulfilled'
+      );
+    });
   }, []);
 
   // Auto-fill description/remediation when vulnerability selection changes
@@ -209,6 +208,12 @@ function App() {
         </Link>
       </header>
 
+      {backendStatus === false && (
+        <div className="backend-warning">
+          Backend server is not running. Open a terminal in <code>my-backend-app</code> and run <code>npm start</code>, then refresh this page.
+        </div>
+      )}
+
       <main className="main-content">
 
         {/* ── Application & Assessment Details ── */}
@@ -289,9 +294,18 @@ function App() {
               <div className="form-grid">
                 <div className="form-group">
                   <label htmlFor="vulnerabilityName">Vulnerability Name</label>
-                  <select id="vulnerabilityName" value={currentVulnerability.vulnerabilityName} onChange={handleVulnerabilityChange}>
-                    {vulnerabilityOptions.map(v => <option key={v.id} value={v.name}>{v.name}</option>)}
-                  </select>
+                  <input
+                    type="text"
+                    id="vulnerabilityName"
+                    list="vuln-suggestions"
+                    value={currentVulnerability.vulnerabilityName}
+                    onChange={handleVulnerabilityChange}
+                    placeholder={vulnerabilityOptions.length > 0 ? 'Type or select from list…' : 'Start backend and refresh to load list…'}
+                    autoComplete="off"
+                  />
+                  <datalist id="vuln-suggestions">
+                    {vulnerabilityOptions.map(v => <option key={v.id} value={v.name} />)}
+                  </datalist>
                 </div>
                 <div className="form-group">
                   <label htmlFor="severity">Severity</label>
@@ -301,11 +315,11 @@ function App() {
                 </div>
                 <div className="form-group full-width">
                   <label htmlFor="description">Description</label>
-                  <textarea id="description" value={currentVulnerability.description} onChange={handleVulnerabilityChange} rows="3" />
+                  <textarea id="description" value={currentVulnerability.description} onChange={handleVulnerabilityChange} rows="3" placeholder="Auto-filled when a known vulnerability is selected, or type manually." />
                 </div>
                 <div className="form-group full-width">
                   <label htmlFor="remediation">Remediation</label>
-                  <textarea id="remediation" value={currentVulnerability.remediation} onChange={handleVulnerabilityChange} rows="3" />
+                  <textarea id="remediation" value={currentVulnerability.remediation} onChange={handleVulnerabilityChange} rows="3" placeholder="Auto-filled when a known vulnerability is selected, or type manually." />
                 </div>
                 <div className="form-group">
                   <label htmlFor="affectedUrl">Affected URL</label>
