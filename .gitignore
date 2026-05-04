@@ -21,3 +21,6 @@ desktop.ini
 # ── Local env overrides ───────────────────────────
 .env.local
 **/.env.local
+
+# ── Claude Code internal data ─────────────────────
+.claude/

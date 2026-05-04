@@ -1,0 +1,85 @@
+DAST REPORT GENERATOR — HOW TO SET UP & USE
+============================================
+
+
+BEFORE YOU START — Install Node.js (One Time Only)
+---------------------------------------------------
+1. Go to this website:  https://nodejs.org
+2. Click the green "LTS" download button
+3. Install it like any normal software (keep clicking Next, then Finish)
+
+
+STEP 1 — Get the Project Files
+-------------------------------
+Option A — Download from GitHub (recommended):
+1. Open this link in your browser:  https://github.com/NAGGI-AI/Rep-Gen-Suite
+2. Click the green "Code" button → Click "Download ZIP"
+3. Right-click the downloaded zip → "Extract All" → Click Extract
+4. You will see a folder called  Rep-Gen-Suite-main  (rename it to  Rep_Gen_Suite  if you like)
+
+Option B — Clone with Git (if you have Git installed):
+1. Open PowerShell anywhere and run:
+        git clone https://github.com/NAGGI-AI/Rep-Gen-Suite.git
+2. You will see a folder called  Rep-Gen-Suite
+
+
+STEP 2 — First Time Setup (Do this ONCE only)
+----------------------------------------------
+1. Open the  Rep_Gen_Suite  folder
+2. Open the  my-backend-app  folder
+3. In the address bar at the top, type  powershell  and press Enter
+4. In the black window that opens, type this and press Enter:
+        npm install
+   Wait for it to finish (takes 2-5 minutes)
+
+5. Now go back and open the  my-frontend-app  folder
+6. Again type  powershell  in the address bar and press Enter
+7. Type this and press Enter:
+        npm install
+   Wait for it to finish
+
+
+STEP 3 — Run the App (Do this Every Time)
+------------------------------------------
+You need to open TWO black windows (PowerShell)
+
+   Window 1 — open inside the  my-backend-app  folder:
+      Type this and press Enter:
+         npm start
+      You will see: "Server running on port 3001"
+      Leave this window open.
+
+   Window 2 — open inside the  my-frontend-app  folder:
+      Type this and press Enter:
+         npm run dev
+      You will see: "http://localhost:5173"
+      Leave this window open.
+
+
+STEP 4 — Open the App
+----------------------
+1. Open Chrome or Edge browser
+2. Type  http://localhost:5173  in the address bar
+3. Press Enter
+4. The app will open
+
+
+STEP 5 — Generate a Report
+----------------------------
+1. Select your Application from the dropdown
+2. Fill in the details (dates, environment, etc.)
+3. Add vulnerabilities
+4. Click "Generate PDF Report"
+5. PDF will download automatically
+
+
+TO CLOSE THE APP
+-----------------
+Press  Ctrl + C  in both black windows
+
+
+SOMETHING NOT WORKING?
+-----------------------
+- Make sure both black windows are still running
+- Try restarting your laptop and repeat Step 3
+- Contact your team lead for help
