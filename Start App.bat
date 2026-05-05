@@ -27,7 +27,7 @@ timeout /t 5 /nobreak >nul
 
 :: Step 3 — Start the frontend in a new window
 echo  [3/3]  Starting Frontend...
-start "DAST Frontend (keep open)" cmd /k "cd /d "%~dp0my-frontend-app" && npm run dev"
+start "DAST Frontend (keep open)" cmd /k "cd /d "%~dp0my-frontend-app" && npx vite --host 0.0.0.0 --port 5173"
 echo         Frontend window opened.
 echo.
 
